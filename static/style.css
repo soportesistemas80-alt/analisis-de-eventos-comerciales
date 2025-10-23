@@ -1,0 +1,177 @@
+/* /static/style.css */
+
+/* 1. Tipografía y Fondo General */
+body {
+    /* Usar Poppins como fuente principal, y sans-serif como fallback */
+    font-family: 'Poppins', sans-serif;
+    /* Fondo Blanco-Hueso muy sutil para las afueras de las tarjetas */
+    background-color: #f8f8f8;
+    padding-bottom: 50px;
+}
+
+/* 2. Paleta Monocromática (Gris, Blanco y Negro sutil) */
+
+:root {
+    /* Color principal de la aplicación: Negro/Gris muy Oscuro (Texto y Títulos) */
+    --bs-primary: #212529; /* Casi negro */
+    /* Color secundario: Gris oscuro para bordes, líneas de separación y texto sutil */
+    --bs-secondary: #495057;
+    /* Color para el botón de acción/peligro: Rojo muy tenue, solo para alerta visual clave */
+    --bs-danger: #b30000;
+
+    /* Colores para indicadores de impacto (Monocromático, usando tonos de gris/verde/rojo muy sutiles) */
+    --impact-positivo: #1a8754; /* Verde sutil para POSITIVO */
+    --impact-negativo: #b30000; /* Rojo sutil para NEGATIVO */
+    --impact-neutro: #6c757d;   /* Gris medio para NEUTRO */
+
+    /* Sombra elegante y suave */
+    --bs-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+}
+
+/* 3. Estilos de Componentes */
+
+.container {
+    background-color: transparent;
+}
+
+.card {
+    border: 1px solid #e9ecef; /* Borde muy fino para definir la tarjeta */
+    border-radius: 0.75rem;
+    box-shadow: var(--bs-box-shadow);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.75rem 1.2rem rgba(0, 0, 0, 0.1);
+}
+
+/* Header de la Aplicación */
+header.bg-primary {
+    background-color: var(--bs-primary) !important;
+    color: #f8f9fa !important;
+}
+
+/* Headers de Tarjetas (Uniformidad en el color) */
+.card-header {
+    border-radius: 0.75rem 0.75rem 0 0 !important;
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    background-color: #f1f3f5 !important; /* Gris muy claro para los encabezados */
+    color: var(--bs-primary) !important; /* Texto negro sutil */
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Eliminar el estilo que sobreescribe los colores de Bootstrap */
+.card-header.bg-dark, .card-header.bg-secondary {
+    background-color: #f1f3f5 !important;
+}
+
+/* 4. Formulario y Campos */
+.form-control, .form-select {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    box-shadow: none !important;
+    transition: border-color 0.3s;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.2) !important; /* Anillo de enfoque elegante, basado en Navy */
+}
+
+/* Botón de Acción Principal (Rojo sutil para la seriedad) */
+.btn-danger {
+    background-color: var(--bs-danger);
+    border-color: var(--bs-danger);
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover {
+    background-color: #8c0000;
+    border-color: #8c0000;
+    transform: translateY(-1px);
+}
+
+/* 5. Tablas y Resultados (Legibilidad Monocromática) */
+
+.table-responsive {
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6; /* Borde sutil para la tabla */
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: #f4f6f8; /* Franjas de gris muy claro */
+}
+
+/* Header de la tabla: Fondo oscuro elegante y serio */
+.table-dark th {
+    background-color: var(--bs-primary) !important; /* Negro sutil */
+    border-bottom: none;
+    color: white;
+}
+
+.table td {
+    vertical-align: middle;
+    color: var(--bs-secondary);
+}
+
+/* Badges de Impacto (Usando los colores sutiles definidos) */
+.badge {
+    font-weight: 500;
+    padding: 0.4em 0.7em;
+    border-radius: 0.25rem;
+}
+
+.badge.bg-success {
+    background-color: var(--impact-positivo) !important; /* Verde sutil */
+}
+
+.badge.bg-danger {
+    background-color: var(--impact-negativo) !important; /* Rojo sutil */
+}
+
+.badge.bg-warning {
+    background-color: var(--impact-neutro) !important; /* Gris medio */
+    color: white !important;
+}
+
+/* Footer sutil */
+footer {
+    border-top: 1px solid #e9ecef;
+    margin-top: 3rem !important;
+    background-color: #ffffff !important;
+    box-shadow: none; /* Eliminar sombras del footer */
+    color: var(--bs-secondary);
+}
+
+/* --- 6. MEJORAS DE HEADER (Inteligencia de Eventos Comerciales) --- */
+
+.header-enhanced {
+    /* Fondo usa el Gris/Negro oscuro de la paleta */
+    background-color: var(--bs-primary) !important;
+    color: #f8f8f8;
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+    margin-bottom: 3rem !important; /* Más espacio debajo del header */
+
+    /* Agregamos una sombra sutil en la parte inferior para darle peso */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+
+    /* Detalle visual sutil: una línea inferior */
+    border-bottom: 4px solid #495057;
+}
+
+.header-enhanced h1 {
+    font-size: 2.5rem; /* Asegurar un tamaño grande pero legible */
+    /* Usar el gris oscuro como fondo da un look serio. */
+}
+
+.header-enhanced .lead {
+    font-size: 1.1rem;
+    color: #ced4da !important; /* Gris claro para el texto de apoyo */
+}
