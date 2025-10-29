@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análisis de Eventos Comerciales 🛍️</title>
+    <title>Inteligencia de Eventos Comerciales 🛍️</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
@@ -14,32 +15,59 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
     <header class="bg-primary text-white py-4 mb-4 header-enhanced">
-    <div class="container text-center">
-        <h1 class="display-5 fw-bold mb-1">Inteligencia de Eventos Comerciales</h1>
-        <p class="lead fw-light">Análisis estratégico de impacto en ventas para el sector moda de Colombia.</p>
-    </div>
+        <div class="container text-center">
+            <h1 class="display-5 fw-bold mb-1">Inteligencia de Eventos Comerciales</h1>
+            <p class="lead fw-light">Análisis estratégico de impacto en ventas para el sector moda de Colombia.</p>
+        </div>
     </header>
 
-    <main class="container">
+    <main class="container py-5">
         <section class="row">
             <div class="col-lg-5 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-dark text-white">
+                <div class="card">
+                    <div class="card-header">
                         <h5 class="mb-0">Consulta de Eventos</h5>
                     </div>
                     <div class="card-body">
                         <form id="event-form">
-                            <div class="mb-3">
-                                <label for="date-select" class="form-label">Fecha Específica (Define el mes para el análisis):</label>
-                                <input type="date" class="form-control" id="date-select" name="fecha" required>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Modo de Consulta:</label>
+                                <ul class="nav nav-pills nav-fill" id="periodo-tab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="tab-month" data-bs-toggle="tab" data-bs-target="#panel-month" type="button" role="tab" aria-controls="panel-month" aria-selected="true" data-periodo-type="month">Mensual</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="tab-year" data-bs-toggle="tab" data-bs-target="#panel-year" type="button" role="tab" aria-controls="panel-year" aria-selected="false" data-periodo-type="year">Anual</button>
+                                    </li>
+                                </ul>
                             </div>
 
+                            <div class="tab-content" id="periodo-tab-content">
+
+                                <div class="tab-pane fade show active" id="panel-month" role="tabpanel" aria-labelledby="tab-month">
+                                    <div class="mb-3">
+                                        <label for="date-select" class="form-label">Fecha Específica (Define el mes para el análisis):</label>
+                                        <input type="date" class="form-control" id="date-select" name="fecha" required>
+                                    </div>
+                                    <input type="hidden" name="periodo_type" id="hidden-periodo-type" value="month">
+                                </div>
+
+                                <div class="tab-pane fade" id="panel-year" role="tabpanel" aria-labelledby="tab-year">
+                                    <div class="mb-3">
+                                        <label for="year-select" class="form-label">Año a Analizar (YYYY):</label>
+                                        <input type="number" class="form-control" id="year-select" name="year_select" min="2020" max="2050" placeholder="Ej: 2025">
+                                    </div>
+                                </div>
+
+                            </div>
                             <div class="mb-3">
                                 <label for="department-select" class="form-label">Departamento:</label>
                                 <select id="department-select" name="departamento" class="form-select" required>
                                     <option value="">Selecciona un Departamento</option>
-                                </select>
+                                    </select>
                             </div>
 
                             <div class="mb-3">
@@ -49,7 +77,7 @@
                                 </select>
                             </div>
 
-                            <div class="mb-4">
+                            <div class="mb-4" id="format-select-group">
                                 <label for="result-format-select" class="form-label">Formato del Resultado:</label>
                                 <select id="result-format-select" name="format" class="form-select" required>
                                     <option value="table">Vista Tabla (Resumen)</option>
@@ -64,9 +92,9 @@
             </div>
 
             <div class="col-lg-7">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0">Calendario de Eventos Comerciales Clave (Mes Seleccionado)</h5>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Calendario de Eventos Comerciales Clave (<span id="periodo-display">Mes Seleccionado</span>)</h5>
                     </div>
                     <div class="card-body">
                         <div id="loading-indicator" class="text-center text-info my-3 d-none">
@@ -74,6 +102,7 @@
                                 <span class="visually-hidden">Cargando...</span>
                             </div>
                             <p class="mt-2">Identificando eventos comerciales con Gemini... ⏳</p>
+                            <p class="text-muted small mt-1 d-none" id="annual-warning-text">La consulta anual puede tomar varios segundos más.</p>
                         </div>
 
                         <div id="event-output" class="p-3 border rounded bg-light">
@@ -98,7 +127,7 @@
 
     <footer class="bg-light text-center text-lg-start mt-5">
         <div class="container p-4">
-            <p class="text-center mb-0">&copy; 2025 Análisis Comercial con Google Gemini.</p>
+            <p class="text-center mb-0 small">&copy; 2025 Análisis Comercial con Google Gemini.</p>
         </div>
     </footer>
 

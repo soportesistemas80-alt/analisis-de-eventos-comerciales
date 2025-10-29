@@ -1,177 +1,214 @@
-/* /static/style.css */
+/* /static/style.css - Diseño Monocromático Profesional Completo */
 
-/* 1. Tipografía y Fondo General */
-body {
-    /* Usar Poppins como fuente principal, y sans-serif como fallback */
-    font-family: 'Poppins', sans-serif;
-    /* Fondo Blanco-Hueso muy sutil para las afueras de las tarjetas */
-    background-color: #f8f8f8;
-    padding-bottom: 50px;
-}
-
-/* 2. Paleta Monocromática (Gris, Blanco y Negro sutil) */
-
+/* 1. Paleta de Colores y Tipografía Global */
 :root {
-    /* Color principal de la aplicación: Negro/Gris muy Oscuro (Texto y Títulos) */
-    --bs-primary: #212529; /* Casi negro */
-    /* Color secundario: Gris oscuro para bordes, líneas de separación y texto sutil */
-    --bs-secondary: #495057;
-    /* Color para el botón de acción/peligro: Rojo muy tenue, solo para alerta visual clave */
-    --bs-danger: #b30000;
+    /* Color Principal (Texto, Títulos, Header): Negro Serio */
+    --bs-primary: #1e1e1e;
+    /* Color Secundario (Bordes, Texto Sutil): Gris Neutro */
+    --bs-secondary: #6c757d;
+    /* Fondo del Cuerpo (Blanco Cálido): Ligero contraste con el blanco de las tarjetas */
+    --bs-body-bg: #f5f5f5;
+    /* Color del Botón de Acción/Peligro: Rojo de Seriedad, no de alarma */
+    --bs-danger: #a62020;
 
-    /* Colores para indicadores de impacto (Monocromático, usando tonos de gris/verde/rojo muy sutiles) */
-    --impact-positivo: #1a8754; /* Verde sutil para POSITIVO */
-    --impact-negativo: #b30000; /* Rojo sutil para NEGATIVO */
-    --impact-neutro: #6c757d;   /* Gris medio para NEUTRO */
+    /* Indicadores de Impacto (Colores sutiles para el significado) */
+    --impact-positivo: #198754;
+    --impact-negativo: #dc3545;
+    --impact-neutro: #ffc107;
 
-    /* Sombra elegante y suave */
-    --bs-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    /* Sombra de Elevación: Muy suave */
+    --bs-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* 3. Estilos de Componentes */
-
-.container {
-    background-color: transparent;
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-primary);
+    min-height: 100vh;
 }
 
+/* 2. Header (Encabezado Superior) */
+.header-enhanced {
+    background-color: var(--bs-primary) !important;
+    color: white;
+    padding-top: 3.5rem !important;
+    padding-bottom: 3.5rem !important;
+    margin-bottom: 3rem !important;
+    border-bottom: 4px solid #495057;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.header-enhanced h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+}
+
+.header-enhanced .lead {
+    font-size: 1.15rem;
+    color: #ced4da !important;
+    font-weight: 300 !important;
+}
+
+/* 3. Tarjetas (Cards) de Formulario y Resultado */
 .card {
-    border: 1px solid #e9ecef; /* Borde muy fino para definir la tarjeta */
-    border-radius: 0.75rem;
+    border: none;
+    border-radius: 1rem; /* Bordes más redondeados */
     box-shadow: var(--bs-box-shadow);
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+    transition: transform 0.3s ease-in-out;
 }
 
 .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0.75rem 1.2rem rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px); /* Efecto de elevación más notable */
 }
 
-/* Header de la Aplicación */
-header.bg-primary {
-    background-color: var(--bs-primary) !important;
-    color: #f8f9fa !important;
-}
-
-/* Headers de Tarjetas (Uniformidad en el color) */
+/* Encabezado de Tarjeta */
 .card-header {
-    border-radius: 0.75rem 0.75rem 0 0 !important;
+    background-color: #ffffff !important; /* Fondo Blanco Puro */
+    color: var(--bs-primary) !important;
     font-weight: 600;
-    padding: 1rem 1.5rem;
-    background-color: #f1f3f5 !important; /* Gris muy claro para los encabezados */
-    color: var(--bs-primary) !important; /* Texto negro sutil */
-    border-bottom: 1px solid #dee2e6;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e9ecef; /* Línea de separación sutil */
+    border-radius: 1rem 1rem 0 0 !important;
+    font-size: 1.1rem;
 }
 
-/* Eliminar el estilo que sobreescribe los colores de Bootstrap */
-.card-header.bg-dark, .card-header.bg-secondary {
-    background-color: #f1f3f5 !important;
+/* Título del Panel de Resultados */
+#periodo-display {
+    color: var(--bs-danger); /* Usar el rojo sutil para destacar el período */
+    font-weight: 600;
 }
 
-/* 4. Formulario y Campos */
+/* 4. Formulario y Controles */
+.form-label {
+    font-weight: 600; /* Etiquetas más audaces */
+    color: var(--bs-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+}
+
 .form-control, .form-select {
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
-    box-shadow: none !important;
-    transition: border-color 0.3s;
-    border: 1px solid #ced4da;
+    border: 1px solid #dee2e6;
+    color: var(--bs-primary);
 }
 
 .form-control:focus, .form-select:focus {
     border-color: var(--bs-primary);
-    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.2) !important; /* Anillo de enfoque elegante, basado en Navy */
+    box-shadow: 0 0 0 0.25rem rgba(30, 30, 30, 0.1) !important; /* Anillo de enfoque negro suave */
 }
 
-/* Botón de Acción Principal (Rojo sutil para la seriedad) */
+/* Selector de Pestañas (Nav-pills) */
+.nav-pills .nav-link {
+    color: var(--bs-secondary);
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    font-weight: 500;
+    border-radius: 0.5rem;
+}
+
+.nav-pills .nav-link.active, .nav-pills .nav-link:hover {
+    color: white;
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+.nav-pills .nav-item {
+    padding: 0 5px; /* Espacio entre las pestañas */
+}
+
+.nav-pills .nav-item:first-child .nav-link { border-radius: 0.5rem; }
+.nav-pills .nav-item:last-child .nav-link { border-radius: 0.5rem; }
+
+/* Contenido de Pestañas (Recuadro de fecha/año) */
+.tab-content {
+    border: 1px solid #e9ecef;
+    border-radius: 0.75rem;
+    padding: 1rem 1.5rem; /* Más padding interno */
+    margin-bottom: 1.5rem;
+    background-color: #ffffff;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Sombra interna sutil */
+}
+
+/* Botón Principal */
 .btn-danger {
     background-color: var(--bs-danger);
     border-color: var(--bs-danger);
-    font-weight: 600;
+    font-weight: 700;
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
-    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(166, 32, 32, 0.3); /* Sombra de color para destacar la acción */
 }
 
 .btn-danger:hover {
     background-color: #8c0000;
     border-color: #8c0000;
-    transform: translateY(-1px);
 }
 
-/* 5. Tablas y Resultados (Legibilidad Monocromática) */
+/* 5. Estilos de Tabla y Resultados */
 
 .table-responsive {
+    border: 1px solid #e9ecef;
     border-radius: 0.5rem;
-    border: 1px solid #dee2e6; /* Borde sutil para la tabla */
+    overflow: hidden; /* Asegurar que los bordes redondeados se apliquen */
 }
 
 .table-striped > tbody > tr:nth-of-type(odd) > * {
-    background-color: #f4f6f8; /* Franjas de gris muy claro */
+    background-color: #fcfcfc; /* Franjas muy sutiles, casi blanco */
 }
 
-/* Header de la tabla: Fondo oscuro elegante y serio */
+/* Header de la Tabla: Negro Serio */
 .table-dark th {
-    background-color: var(--bs-primary) !important; /* Negro sutil */
+    background-color: var(--bs-primary) !important;
     border-bottom: none;
     color: white;
+    font-weight: 600;
 }
 
 .table td {
     vertical-align: middle;
     color: var(--bs-secondary);
+    padding: 0.75rem;
 }
 
-/* Badges de Impacto (Usando los colores sutiles definidos) */
+/* Badges de Impacto (Colores más alineados con el minimalismo) */
 .badge {
-    font-weight: 500;
-    padding: 0.4em 0.7em;
-    border-radius: 0.25rem;
+    font-weight: 600;
+    padding: 0.5em 0.9em;
+    border-radius: 50rem; /* Pill shape */
 }
 
-.badge.bg-success {
-    background-color: var(--impact-positivo) !important; /* Verde sutil */
-}
-
-.badge.bg-danger {
-    background-color: var(--impact-negativo) !important; /* Rojo sutil */
-}
-
+.badge.bg-success { background-color: var(--impact-positivo) !important; }
+.badge.bg-danger { background-color: var(--impact-negativo) !important; }
 .badge.bg-warning {
-    background-color: var(--impact-neutro) !important; /* Gris medio */
-    color: white !important;
+    background-color: var(--impact-neutro) !important;
+    color: #333 !important;
 }
 
-/* Footer sutil */
+/* 6. Reporte Anual (Tarjetas por Mes) */
+.custom-month-card {
+    border: 1px solid #e9ecef;
+    box-shadow: none; /* Eliminar sombra extra en tarjetas internas */
+    border-radius: 0.75rem;
+}
+
+.custom-month-card .card-header {
+    background-color: var(--bs-secondary) !important; /* Gris oscuro para el mes */
+    color: white !important;
+    font-size: 1rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem 0.75rem 0 0 !important;
+    border-bottom: none;
+}
+
+.custom-month-card .table-responsive table {
+    font-size: 0.85rem;
+}
+
+/* 7. Footer */
 footer {
     border-top: 1px solid #e9ecef;
     margin-top: 3rem !important;
     background-color: #ffffff !important;
-    box-shadow: none; /* Eliminar sombras del footer */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.03);
     color: var(--bs-secondary);
-}
-
-/* --- 6. MEJORAS DE HEADER (Inteligencia de Eventos Comerciales) --- */
-
-.header-enhanced {
-    /* Fondo usa el Gris/Negro oscuro de la paleta */
-    background-color: var(--bs-primary) !important;
-    color: #f8f8f8;
-    padding-top: 3rem !important;
-    padding-bottom: 3rem !important;
-    margin-bottom: 3rem !important; /* Más espacio debajo del header */
-
-    /* Agregamos una sombra sutil en la parte inferior para darle peso */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-
-    /* Detalle visual sutil: una línea inferior */
-    border-bottom: 4px solid #495057;
-}
-
-.header-enhanced h1 {
-    font-size: 2.5rem; /* Asegurar un tamaño grande pero legible */
-    /* Usar el gris oscuro como fondo da un look serio. */
-}
-
-.header-enhanced .lead {
-    font-size: 1.1rem;
-    color: #ced4da !important; /* Gris claro para el texto de apoyo */
 }

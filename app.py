@@ -41,6 +41,7 @@ def index():
 def analyze_events():
     """
     Recibe los datos del frontend y solicita el análisis a Gemini en el formato especificado.
+    Maneja consultas por MES y por AÑO completo.
     """
     if not client:
         return jsonify({
@@ -50,58 +51,114 @@ def analyze_events():
         }), 500
 
     data = request.get_json()
-    fecha = data.get('fecha')
+    periodo_type = data.get('periodo_type')  # 'month' o 'year'
+    fecha = data.get('fecha')  # YYYY-MM-DD para 'month'
+    year_select = data.get('year_select')  # YYYY para 'year'
     departamento = data.get('departamento')
     ciudad = data.get('ciudad')
     result_format = data.get('format', 'table')
 
-    if not all([fecha, departamento, ciudad]):
-        return jsonify({
-            "error": "Faltan datos (fecha, departamento o ciudad).",
-            "type": "error",
-            "result": None
-        }), 400
+    # Validación de datos según el tipo de período
+    if not all([departamento, ciudad]):
+        return jsonify({"error": "Faltan datos (departamento o ciudad).", "type": "error", "result": None}), 400
 
-    try:
-        year, month, day = fecha.split('-')
-    except ValueError:
-        return jsonify({"error": "Formato de fecha inválido. Usar YYYY-MM-DD.", "type": "error", "result": None}), 400
+    if periodo_type == 'month':
+        if not fecha:
+            return jsonify({"error": "Falta la fecha (YYYY-MM-DD) para la consulta mensual.", "type": "error",
+                            "result": None}), 400
+        try:
+            year, month, day = fecha.split('-')
+            year = year.strip()
+            month = month.strip()
+        except ValueError:
+            return jsonify(
+                {"error": "Formato de fecha inválido. Usar YYYY-MM-DD.", "type": "error", "result": None}), 400
 
-    # --- CONSTRUCCIÓN DINÁMICA DEL PROMPT Y ESQUEMA DE RESPUESTA ---
+    elif periodo_type == 'year':
+        if not year_select or not year_select.isdigit() or len(year_select) != 4:
+            return jsonify({"error": "Falta el año o el formato del año es inválido (YYYY) para la consulta anual.",
+                            "type": "error", "result": None}), 400
+        year = year_select
+        month = None  # No hay mes en consulta anual
 
-    if result_format == 'table':
-        # Solicitud de formato JSON para la Vista Tabla
+    else:
+        return jsonify(
+            {"error": "Tipo de período de consulta inválido ('month' o 'year').", "type": "error", "result": None}), 400
+
+    # --- CONSTRUCCIÓN DINÁMICA DEL PROMPT Y ESQUEMA DE RESPUESTA (PROMPTS MAXIMIZADOS) ---
+
+    if periodo_type == 'month':
+        # Consulta Mensual
+        time_scope = f"el mes de {month}/{year}"
+
+        if result_format == 'table':
+            prompt = f"""
+            Eres un analista de negocios. Identifica la **mayor cantidad posible** de **eventos comerciales y eventos de desvío de atención** que afecten (positiva o negativamente) las ventas y el tráfico de una empresa de moda colombiana como 'El Templo De La Moda SAS' en la ciudad de {ciudad}, departamento de {departamento}, con enfoque en {time_scope}.
+
+            Los eventos deben incluir:
+            1. Eventos Comerciales directos (Día sin IVA, grandes descuentos, etc.).
+            2. Eventos Deportivos de Alto Impacto (Finales, Clásicos, Partidos de Selección Nacional, Copa América, etc.) que causen un desvío de atención negativo.
+            3. Eventos Culturales o Sociales que alteren el consumo (Grandes conciertos, Festivales, Carnavales, etc.).
+            4. Festivos, Días Feriados y Días de Pago/Quincena.
+
+            Devuelve una lista de **al menos 5 a 8 eventos relevantes** en formato **JSON** estricto, sin preámbulos, explicaciones o texto adicional.
+
+            El formato JSON DEBE ser:
+            {{
+              "events": [
+                {{
+                  "date": "YYYY-MM-DD",
+                  "name": "Nombre del Evento (Ej: Partido de Selección vs Brasil)",
+                  "impact": "Positivo, Negativo o Neutro", 
+                  "description": "Breve justificación del impacto comercial en el sector moda."
+                }},
+              ]
+            }}
+            """
+        else:  # result_format == 'detail'
+            prompt = f"""
+            Eres un analista de negocios experto. Realiza un análisis detallado del **impacto comercial** de una amplia variedad de eventos clave (incluyendo eventos comerciales, deportivos, culturales y festivos) en la ciudad de {ciudad}, departamento de {departamento} para el sector moda (como 'El Templo De La Moda SAS') durante {time_scope}.
+
+            El análisis debe ser un texto de 3-4 párrafos que:
+            1. Identifique una lista amplia de eventos relevantes.
+            2. Explique el impacto potencial (positivo o negativo) de cada evento, justificando cómo eventos no comerciales (como partidos de fútbol) pueden desviar el tráfico.
+            3. Ofrezca una recomendación de negocio clave para la empresa.
+
+            No uses formato JSON ni listas. El resultado debe ser texto limpio.
+            """
+
+    else:  # periodo_type == 'year'
+        # Consulta Anual
+        time_scope = f"el año completo {year}"
+
         prompt = f"""
-        Eres un analista de negocios. Identifica los **eventos comerciales** más significativos para una empresa de moda colombiana como 'El Templo De La Moda SAS' en la ciudad de {ciudad}, departamento de {departamento}, con enfoque en el **mes de {month}/{year}**.
+        Eres un analista de negocios. Identifica la **mayor cantidad posible** de **eventos comerciales y eventos de desvío de atención** que afectarán al sector de la moda (como 'El Templo De La Moda SAS') en la ciudad de {ciudad}, departamento de {departamento}, durante **TODO EL AÑO {year}**. 
 
-        Los eventos deben causar picos de ventas o caídas significativas. No incluyas eventos irrelevantes.
+        Los eventos deben incluir explícitamente eventos deportivos de alto impacto, eventos culturales mayores, festivos y eventos sociales que alteren significativamente el tráfico y el consumo.
 
-        Devuelve una lista de **3 a 5 eventos relevantes** en formato **JSON** estricto, sin preámbulos, explicaciones o texto adicional.
+        Debes generar una lista de eventos clave para **cada uno de los 12 meses** (Enero a Diciembre). Cada mes debe tener **al menos 3 a 5 eventos relevantes**.
+
+        Devuelve el análisis en formato **JSON** estricto, sin preámbulos, explicaciones o texto adicional.
 
         El formato JSON DEBE ser:
         {{
-          "events": [
+          "yearly_report": [
             {{
-              "date": "YYYY-MM-DD",
-              "name": "Nombre del Evento",
-              "impact": "Positivo, Negativo o Neutro", 
-              "description": "Breve justificación del impacto comercial en el sector moda."
+              "month_name": "Enero",
+              "month_number": "01",
+              "events": [
+                {{
+                  "date": "YYYY-MM-DD",
+                  "name": "Nombre del Evento (Ej: Día de pago)",
+                  "impact": "Positivo, Negativo o Neutro", 
+                  "description": "Breve justificación del impacto comercial en el sector moda."
+                }},
+                // ... (al menos 3 a 5 eventos por mes)
+              ]
             }},
-            // ... (más objetos de eventos)
+            // ... (objetos para Febrero, Marzo, ..., Diciembre)
           ]
         }}
-        """
-    else:  # result_format == 'detail'
-        # Solicitud de formato de texto plano para la Vista Detallada
-        prompt = f"""
-        Eres un analista de negocios experto. Realiza un análisis detallado del **impacto comercial** de eventos clave en la ciudad de {ciudad}, departamento de {departamento} para el sector moda (como 'El Templo De La Moda SAS') durante el **mes de {month}/{year}**.
-
-        El análisis debe ser un texto de 3-4 párrafos que:
-        1. Identifique 3 a 5 eventos relevantes.
-        2. Explique el impacto potencial (positivo o negativo) de cada evento.
-        3. Ofrezca una recomendación de negocio clave para la empresa.
-
-        No uses formato JSON ni listas. El resultado debe ser texto limpio.
         """
 
     try:
@@ -111,18 +168,11 @@ def analyze_events():
         )
         response_text = response.text.strip()
 
-        if result_format == 'table':
-            # Procesa la respuesta JSON
-            if response_text.startswith('```json'):
-                json_string = response_text.replace('```json', '').replace('```', '').strip()
-            else:
-                json_start = response_text.find('{')
-                json_end = response_text.rfind('}')
-                if json_start != -1 and json_end != -1:
-                    json_string = response_text[json_start: json_end + 1]
-                else:
-                    json_string = response_text
+        # --- PROCESAMIENTO DE RESPUESTA (Mensual vs Anual) ---
 
+        if periodo_type == 'month' and result_format == 'table':
+            # Procesa la respuesta JSON MENSUAL
+            json_string = extract_json_string(response_text)
             analysis_data = json.loads(json_string)
 
             if 'events' not in analysis_data or not isinstance(analysis_data['events'], list):
@@ -130,20 +180,39 @@ def analyze_events():
 
             return jsonify({
                 "type": "table",
+                "period": "month",
                 "result": analysis_data['events'],
                 "error": None
             })
 
-        else:  # result_format == 'detail'
-            # Procesa la respuesta de texto
+        elif periodo_type == 'month' and result_format == 'detail':
+            # Procesa la respuesta de texto MENSUAL
             return jsonify({
                 "type": "detail",
+                "period": "month",
                 "result": response_text,
+                "error": None
+            })
+
+        elif periodo_type == 'year':
+            # Procesa la respuesta JSON ANUAL
+            json_string = extract_json_string(response_text)
+            analysis_data = json.loads(json_string)
+
+            if 'yearly_report' not in analysis_data or not isinstance(analysis_data['yearly_report'], list):
+                raise ValueError("El JSON ANUAL devuelto no tiene el formato esperado (clave 'yearly_report').")
+
+            # La vista anual siempre devuelve el reporte completo, la tabla/detalle se maneja en el frontend.
+            return jsonify({
+                "type": "yearly_report",
+                "period": "year",
+                "result": analysis_data['yearly_report'],
                 "error": None
             })
 
 
     except APIError as e:
+        # --- Manejo de errores de API ---
         error_message = str(e)
         try:
             error_data = json.loads(error_message.split(' ', 1)[1])
@@ -170,7 +239,7 @@ def analyze_events():
         }), 500
 
     except (ValueError, json.JSONDecodeError) as e:
-        app.logger.error(f"Error en el procesamiento del JSON: {e}")
+        app.logger.error(f"Error en el procesamiento del JSON: {e}. Texto recibido: {response_text[:500]}...")
         return jsonify({
             "error": f"Gemini devolvió un formato incorrecto. Intenta de nuevo. Detalles internos: {e}",
             "type": "error",
@@ -185,7 +254,24 @@ def analyze_events():
         }), 500
 
 
-# --- NUEVAS RUTAS DE EXPORTACIÓN ---
+# --- FUNCIONES AUXILIARES ---
+
+def extract_json_string(response_text):
+    """Limpia el texto de respuesta de Gemini para extraer el JSON puro."""
+    if response_text.startswith('```json'):
+        json_string = response_text.replace('```json', '').replace('```', '').strip()
+    else:
+        # Intenta encontrar el primer '{' y el último '}'
+        json_start = response_text.find('{')
+        json_end = response_text.rfind('}')
+        if json_start != -1 and json_end != -1:
+            json_string = response_text[json_start: json_end + 1]
+        else:
+            json_string = response_text
+    return json_string
+
+
+# --- RUTAS DE EXPORTACIÓN ---
 
 @app.route('/export/csv', methods=['POST'])
 def export_csv():
@@ -197,15 +283,13 @@ def export_csv():
 
     df = pd.DataFrame(events)
 
-    # Crear un buffer en memoria para CSV
     output = io.StringIO()
-    # encoding='utf-8-sig' maneja correctamente caracteres especiales
+    # Usar 'utf-8-sig' para asegurar la correcta visualización de caracteres especiales en Excel (BOM)
     df.to_csv(output, index=False, encoding='utf-8-sig')
     output.seek(0)
 
     buffer = io.BytesIO(output.getvalue().encode('utf-8-sig'))
 
-    # Devolver el archivo CSV
     return send_file(
         buffer,
         mimetype='text/csv',
@@ -224,14 +308,12 @@ def export_xlsx():
 
     df = pd.DataFrame(events)
 
-    # Crear un buffer en memoria para XLSX
     output = io.BytesIO()
 
-    # engine='openpyxl' asegura la compatibilidad moderna con XLSX
+    # Asegúrate de que 'openpyxl' esté instalado en tu requirements.txt
     df.to_excel(output, index=False, sheet_name='Eventos Comerciales', engine='openpyxl')
     output.seek(0)
 
-    # Devolver el archivo XLSX
     return send_file(
         output,
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -243,4 +325,5 @@ def export_xlsx():
 # --- EJECUCIÓN DEL SERVIDOR ---
 
 if __name__ == '__main__':
+    # Nota: Usar 'debug=True' para desarrollo. En producción, usa Gunicorn.
     app.run(debug=True, host='0.0.0.0', port=5000)
